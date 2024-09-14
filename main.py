@@ -86,7 +86,8 @@ def main():
         return
 
     # open woodward section
-    driver.find_element(By.XPATH, "//*[text()='Woodward 120  Fall Term 2024']").click()
+    # cone:     9
+    # woodward: 10
     space_id = 10
 
     # download daily report
@@ -98,7 +99,7 @@ def main():
     end_time = date.strftime(datetime.datetime.now(), '%H:%M')
     download_link = f"https://cci-events.charlotte.edu/spaces/{space_id}/report/daily-sign-ins/download?start_time={today}+{start_time}&end_time={today}+{end_time}"
     print("downloading file...")
-    driver.get(download_link)
+    driver.execute_script(f"window.location.href='{download_link}'")
     print(download_link)
 
 
