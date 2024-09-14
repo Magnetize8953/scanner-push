@@ -6,6 +6,7 @@ data.
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from dotenv import load_dotenv
 from datetime import date
 import datetime
@@ -23,67 +24,42 @@ wait = WebDriverWait(driver, timeout=60)
 def main():
 
     # open cci-events
-    driver.get("https://cci-events.charlotte.edu/")
     print("opening cci-events page...")
+    driver.get("https://cci-events.charlotte.edu/")
 
     # get to ninernet login
-    try:
-        wait.until(lambda d: driver.find_element(By.CLASS_NAME, "block"))
-    except TimeoutError:
-        print("cci-events timed out")
-        driver.quit()
-        return
+    WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.CLASS_NAME, "block")))
 
     # load page
-    driver.find_element(By.CLASS_NAME, "block").click()
-    wait.until(lambda d: driver.title != "Events")
     print("opening ninernet login page...")
+    driver.find_element(By.CLASS_NAME, "block").click()
+    WebDriverWait(driver, 60).until(EC.title_contains("Web Authentication"))
 
     # load ninernet page information
-    try:
-        wait.until(lambda d: driver.find_element(By.ID, "username"))
-    except TimeoutError:
-        print("ninernet timed out")
-        driver.quit()
-        return
+    WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.ID, "username")))
     username = driver.find_element(By.ID, "username")
     password = driver.find_element(By.ID, "password")
     submit_button = driver.find_element(By.ID, "shibboleth-login-button")
 
     # enter login info
+    print("logging in...")
     username.send_keys(str(os.getenv("NINERNET_USER")))
     password.send_keys(str(os.getenv("NINERNET_PASS")))
     submit_button.click()
 
     # wait for duo to load
-    try:
-        print("logging in...")
-        wait.until(lambda d: driver.title == "")
-    except TimeoutError:
-        print("ninernet timed out")
-        driver.quit()
-        return
+    WebDriverWait(driver, 60).until(EC.title_is(""))
     # wait for duo auth
-    try:
-        print("waiting for duo 2fa...")
-        wait.until(lambda d: driver.find_element(By.ID, "dont-trust-browser-button"))
-    except TimeoutError:
-        print("duo timed out")
-        driver.quit()
-        return
+    print("waiting for duo 2fa...")
+    WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.ID, "dont-trust-browser-button")))
     driver.find_element(By.ID, "dont-trust-browser-button").click()
     print("duo 2fa authenticated")
 
     # TODO: open appropriate section
 
     # wait for spaces list to load
-    try:
-        print("waiting for spaces page...")
-        wait.until(lambda d: driver.find_element(By.XPATH, "//*[text()='Woodward 120  Fall Term 2024']"))
-    except TimeoutError:
-        print("events spaces page timed out")
-        driver.quit()
-        return
+    print("waiting for spaces page...")
+    WebDriverWait(driver, 60).until(EC.url_matches("https://cci-events.charlotte.edu/spaces"))
 
     # open woodward section
     # cone:     9
