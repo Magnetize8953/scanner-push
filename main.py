@@ -24,7 +24,7 @@ def main():
 
     # open cci-events
     driver.get("https://cci-events.charlotte.edu/")
-    print(driver.title)
+    print("opening cci-events page...")
 
     # get to ninernet login
     try:
@@ -37,6 +37,7 @@ def main():
     # load page
     driver.find_element(By.CLASS_NAME, "block").click()
     wait.until(lambda d: driver.title != "Events")
+    print("opening ninernet login page...")
 
     # load ninernet page information
     try:
@@ -56,6 +57,7 @@ def main():
 
     # wait for duo to load
     try:
+        print("logging in...")
         wait.until(lambda d: driver.title == "")
     except TimeoutError:
         print("ninernet timed out")
@@ -76,6 +78,7 @@ def main():
 
     # wait for spaces list to load
     try:
+        print("waiting for spaces page...")
         wait.until(lambda d: driver.find_element(By.XPATH, "//*[text()='Woodward 120  Fall Term 2024']"))
     except TimeoutError:
         print("events spaces page timed out")
@@ -94,10 +97,13 @@ def main():
     start_time = date.strftime(datetime.datetime.now() - datetime.timedelta(minutes=minutes_ago), '%H:%M')
     end_time = date.strftime(datetime.datetime.now(), '%H:%M')
     download_link = f"https://cci-events.charlotte.edu/spaces/{space_id}/report/daily-sign-ins/download?start_time={today}+{start_time}&end_time={today}+{end_time}"
+    print("downloading file...")
     driver.get(download_link)
+    print(download_link)
 
 
     # exit selenium
+    print("quitting selenium...")
     driver.quit()
 
 if __name__ == "__main__":
