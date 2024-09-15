@@ -155,6 +155,27 @@ def get_valid_attendance(section_num: int, file_name: str) -> List[int]:
     return valid_students_ids
 
 
+def push_attendance_to_canvas(assignment_id: int, section_num: int, file_name: str):
+    # set up dotenv
+    load_dotenv()
+
+    # set up canvas
+    canvas = Canvas("https://uncc.instructure.com", str(os.getenv("CANVAS_API_KEY")))
+
+    # get student attendance
+    attendance = get_valid_attendance(section_num, file_name)
+
+    # loop through attendance data and create dict of grades
+    grades = {}
+    for student in attendance:
+        grades[str(student)] = {"posted_grade": "complete"}
+
+    # push grades to canvas
+    # bulk grade is needed to grade assignments without submissions
+    # https://community.canvaslms.com/t5/Canvas-Developers-Group/Grading-an-assignment-without-a-submission/m-p/160140
+    canvas.get_section(section_num).submissions_bulk_update(grade_data={str(assignment_id): grades})
+
+
 if __name__ == "__main__":
     space_id = 10 # woodward is 10, cone is 9
     download_scanner_data(space_id, 5, 60)
