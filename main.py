@@ -13,7 +13,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from dotenv import load_dotenv
 from canvasapi import Canvas
-from typing import Dict
+from typing import Dict, List
 from datetime import date
 import datetime
 import os
@@ -125,6 +125,34 @@ def get_section_students(section_num: int) -> Dict[str, int]:
             students[student.user["login_id"]] = int(student.user_id)
 
     return students
+
+
+def read_scanner_data_file(file_name: str) -> List[str]:
+    # open file and remove header
+    with open(file_name, "r") as file:
+        entries = file.readlines()
+    entries.pop(0)
+
+    # loop through scanner data entries and add user ids (login_ids) to a list
+    user_ids = []
+    for entry in entries:
+        user_ids.append(entry[0:entry.index("@")])
+
+    return user_ids
+
+
+def get_valid_attendance(section_num: int, file_name: str) -> List[int]:
+    # get data
+    scanner_data = read_scanner_data_file(file_name)
+    section_students = get_section_students(section_num)
+
+    # loop through scanner data entries and add students actually in the section to a list
+    valid_students_ids = []
+    for entry in scanner_data:
+        if entry in section_students:
+            valid_students_ids.append(section_students[entry])
+
+    return valid_students_ids
 
 
 if __name__ == "__main__":
