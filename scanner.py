@@ -22,14 +22,11 @@ options.set_preference("browser.download.dir", os.getcwd())
 driver = webdriver.Firefox(options=options)
 wait = WebDriverWait(driver, timeout=60)
 
-"""
-load the cci events page and download scanner data
 
-space_id - id number of the cci events space
-scanner_delta - amount of time, in minutes, to look back in the scanner data from time of running
-driver_timeout - amount of time, in seconds, to wait before timing out webpage loads
 """
-def download_scanner_data(space_id: int, scanner_delta: int) -> None:
+load the cci events page
+"""
+def load_cci_events() -> None:
 
     # open cci-events
     print("opening cci-events page...")
@@ -66,18 +63,32 @@ def download_scanner_data(space_id: int, scanner_delta: int) -> None:
     # wait for spaces list to load
     print("waiting for spaces page...")
     wait.until(EC.url_matches("https://cci-events.charlotte.edu/spaces"))
+    print("spaces page loaded")
 
-    # download daily report
+
+"""
+download scanner data
+
+space_id - id number of the cci events space
+scanner_delta - amount of time, in minutes, to look back in the scanner data from time of running
+"""
+def download_scanner_data(space_id: int, scanner_delta: int):
+
+    # open cci events page
+    if driver.current_url != "https://cci-events.charlotte.edu/spaces":
+        load_cci_events()
+
     # time in eastern time
     # time format: YYYY/MM/DD+HH:MM
     today = date.strftime(date.today(), "%Y/%m/%d")
     start_time = date.strftime(datetime.datetime.now() - datetime.timedelta(minutes=scanner_delta), '%H:%M')
     end_time = date.strftime(datetime.datetime.now(), '%H:%M')
+
+    # format download link
     download_link = f"https://cci-events.charlotte.edu/spaces/{space_id}/report/daily-sign-ins/download?start_time={today}+{start_time}&end_time={today}+{end_time}"
+
+    # download file using js
     print("downloading file...")
     driver.execute_script(f"window.location.href='{download_link}'")
-    print(download_link)
 
-    # exit selenium
-    print("quitting selenium...")
-    driver.quit()
+    print(download_link)
