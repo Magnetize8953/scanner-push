@@ -16,7 +16,9 @@ if os.getenv("NINERNET_PASS") is None or os.getenv("NINERNET_PASS") == "":
 
 # set up selenium
 options = webdriver.FirefoxOptions()
-# options.add_argument("-headless")
+options.add_argument("-headless")
+options.set_preference("browser.download.folderList", 2)
+options.set_preference("browser.download.dir", os.getcwd())
 driver = webdriver.Firefox(options=options)
 wait = WebDriverWait(driver, timeout=60)
 
