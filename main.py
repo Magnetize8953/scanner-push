@@ -12,6 +12,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from dotenv import load_dotenv
+from canvasapi import Canvas
+from typing import Dict
 from datetime import date
 import datetime
 import os
@@ -84,6 +86,45 @@ def download_scanner_data(space_id: int, scanner_delta: int, driver_timeout: int
     # exit selenium
     print("quitting selenium...")
     driver.quit()
+
+
+def get_canvas_sections() -> Dict[int, int]:
+    # set up dotenv
+    load_dotenv()
+
+    # set up canvas
+    canvas = Canvas("https://uncc.instructure.com", str(os.getenv("CANVAS_API_KEY")))
+    course = canvas.get_course(int(str(os.getenv("CANVAS_COURSE_ID"))))
+
+    # loop through sections and add the section's number and id to a dict
+    sections = {}
+    for section in course.get_sections():
+        section = str(section)
+        section_num = int(section[10:13])
+        section_id = int(section[-7:-1])
+        sections[section_num] = section_id
+
+    return sections
+
+def get_section_students(section_num: int) -> Dict[str, int]:
+    # set up dotenv
+    load_dotenv()
+
+    # set up canvas
+    canvas = Canvas("https://uncc.instructure.com", str(os.getenv("CANVAS_API_KEY")))
+    sections = get_canvas_sections()
+    section_enrollment = canvas.get_section(sections[section_num]).get_enrollments(role=["StudentEnrollment"])
+    # information on returned objects
+    # https://canvas.instructure.com/doc/api/enrollments.html#Enrollment
+
+    # loop through enrollments for the section and add student ninernet ids and canvas ids to a dict
+    students = {}
+    for student in section_enrollment:
+        if student is not None and student.user["name"] != "Test Student":
+            # NOTE: login_id is only visible with certain permissions on the Canvas account
+            students[student.user["login_id"]] = int(student.user_id)
+
+    return students
 
 
 if __name__ == "__main__":
