@@ -93,6 +93,9 @@ def get_valid_attendance(section_num: int, file_name: str) -> List[int]:
     scanner_data = read_scanner_data_file(file_name)
     section_students = get_section_students(section_num)
 
+    # remove duplicates from scanner data
+    scanner_data = list(set(scanner_data))
+
     # loop through scanner data entries and add students actually in the section to a list
     valid_students_ids = []
     for entry in scanner_data:
