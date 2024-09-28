@@ -13,16 +13,24 @@ Set these at the OS level or in a `.env` file next to this one.
 
 import scanner
 import canvas
+import time
+import os
 
 if __name__ == "__main__":
     # woodward is 10, cone is 9
     space_id = 10
     scanner.download_scanner_data(space_id, 60)
 
+    # set file name
     file_name = ""
     if space_id == 10:
         file_name = "Woodward 120 Fall Term 2024_sign_in_export.csv"
     elif space_id == 9:
         file_name = "Cone 175 Fall Term 2024_sign_in_export.csv"
+
+    # wait for file to download
+    while file_name not in os.listdir():
+        time.sleep(5)
+        print('\twaiting for download...')
 
     # canvas.push_attendance_to_canvas(-1, -1, file_name)

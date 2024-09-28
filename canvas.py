@@ -117,6 +117,9 @@ def push_attendance_to_canvas(assignment_id: int, section_num: int, file_name: s
     # get student attendance
     attendance = get_valid_attendance(section_num, file_name)
 
+    # get sections
+    sections = get_canvas_sections()
+
     # loop through attendance data and create dict of grades
     grades = {}
     for student in attendance:
@@ -125,5 +128,5 @@ def push_attendance_to_canvas(assignment_id: int, section_num: int, file_name: s
     # push grades to canvas
     # bulk grade is needed to grade assignments without submissions
     # https://community.canvaslms.com/t5/Canvas-Developers-Group/Grading-an-assignment-without-a-submission/m-p/160140
-    canvas.get_section(section_num).submissions_bulk_update(grade_data={str(assignment_id): grades})
+    canvas.get_section(sections[section_num]).submissions_bulk_update(grade_data={str(assignment_id): grades})
 
